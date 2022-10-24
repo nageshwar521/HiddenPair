@@ -17,6 +17,15 @@ const shuffleArr = (arr: number[], newArr: number[] = []): number[] => {
 
 export const generateRandomNums = () => {
   const getRandomNum = () => Math.floor(Math.random() * 100);
-  const nums = Array.from({length: CARD_PAIRS_VALUE}, getRandomNum);
+  const nums: number[] = [];
+  for (let i=0; i<CARD_PAIRS_VALUE; i++) {
+    const randNum = getRandomNum();
+    if (!nums.includes(randNum)) {
+      nums.push(randNum);
+    } else {
+      const newRandNum = getRandomNum();
+      nums.push(newRandNum);
+    }
+  }
   return shuffleArr([...nums, ...nums]);
 };

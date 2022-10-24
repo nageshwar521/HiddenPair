@@ -2,6 +2,7 @@ import {View, Text} from 'react-native';
 import React from 'react';
 import createStyles from '../utils/createStyles';
 import Button from './Button';
+import {TEXT_PRIMARY_COLOR} from '../constants';
 
 export interface IHeaderProps {
   steps: number;
@@ -22,7 +23,9 @@ const Header: React.FC<IHeaderProps> = ({steps = 0, onRestart}) => {
         </Button>
       </View>
       <View style={[styles.column, styles.right]}>
-        <Text style={styles.stepsTextStyle}>STEPS: {steps}</Text>
+        <Text style={styles.stepsTextStyle}>
+          STEPS: <Text style={styles.stepsValueTextStyle}>{steps}</Text>
+        </Text>
       </View>
     </View>
   );
@@ -33,22 +36,30 @@ const getStyles = () => {
     container: {
       flexDirection: 'row',
       padding: 10,
-      marginBottom: 10,
     },
     column: {
       flex: 1,
     },
     left: {
+      flexDirection: 'row',
       justifyContent: 'flex-start',
+      alignItems: 'center',
     },
     right: {
-      alignItems: 'flex-end',
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
     },
     restartTextStyle: {
-      color: 'white',
+      color: TEXT_PRIMARY_COLOR,
     },
     stepsTextStyle: {
+      flexDirection: 'row',
       color: 'white',
+    },
+    stepsValueTextStyle: {
+      color: TEXT_PRIMARY_COLOR,
+      fontSize: 20,
     },
   };
   return createStyles(styles);
