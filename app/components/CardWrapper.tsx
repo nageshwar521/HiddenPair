@@ -8,41 +8,34 @@ import {
   CLOSE_CARD_BG_COLOR,
   OPEN_CARD_BG_COLOR,
 } from '../constants';
+import Card from './Card';
 
 export type IFlipTypeOptions = 'OPEN' | 'CLOSE';
 
-export interface ICardProps {
+export interface ICardWrapperProps {
   width: number;
   height: number;
-  onToggle: (data: number, index: number) => void;
+  onOpen: (num: number) => void;
   children: any;
   style?: StyleProp<any>;
   contentStyle?: StyleProp<any>;
-  data: number;
-  dataIndex: number;
-  matchedIndexes: number[];
-  unmatchedIndexes: number[];
-  currentNum: number;
-  currentNumIndex: number;
+  disabled: boolean;
+  isMatch: boolean;
 }
 
-const Card: React.FC<ICardProps> = ({
+const CardWrapper: React.FC<ICardWrapperProps> = ({
   children,
-  onToggle,
+  onOpen,
   width,
   height,
   style = {},
   contentStyle = {},
-  data,
-  dataIndex,
-  matchedIndexes,
-  unmatchedIndexes,
-  currentNum,
-  currentNumIndex,
+  disabled = false,
+  isMatch = false,
 }) => {
+  console.log(isMatch, 'isMatch');
+  const [flipType, setFlipType] = useState<IFlipTypeOptions>('CLOSE');
   const styles = getStyles(height, width);
-
-  const [isCardOpen, setIsCardOpen] = useState(false);
 
   const animatedStartValue = new Animated.Value(0);
   const flipAnimatedValue = useRef(animatedStartValue).current;
@@ -52,8 +45,7 @@ const Card: React.FC<ICardProps> = ({
     ({value}: {value: number}) => (flipRotation = value),
   );
 
-  const flipToOpenAnimation = () => {
-    console.log('flipToOpenAnimation');
+  const flipToFrontAnimation = () => {
     Animated.timing(flipAnimatedValue, {
       toValue: 180,
       duration: 800,
@@ -61,8 +53,7 @@ const Card: React.FC<ICardProps> = ({
     }).start();
   };
 
-  const flipToCloseAnimation = () => {
-    console.log('flipToCloseAnimation');
+  const flipToBackAnimation = () => {
     Animated.timing(flipAnimatedValue, {
       toValue: 0,
       duration: 800,
@@ -70,77 +61,70 @@ const Card: React.FC<ICardProps> = ({
     }).start();
   };
 
-  const flipToOpenInterpolate = flipAnimatedValue.interpolate({
+  const flipToFrontInterpolate = flipAnimatedValue.interpolate({
     inputRange: [0, 180],
     outputRange: ['0deg', '180deg'],
   });
 
-  const flipToCloseInterpolate = flipAnimatedValue.interpolate({
+  const flipToBackInterpolate = flipAnimatedValue.interpolate({
     inputRange: [0, 180],
     outputRange: ['180deg', '360deg'],
   });
 
   const flipToFrontAnimatedStyle = {
-    transform: [{rotateY: flipToOpenInterpolate}],
+    transform: [{rotateY: flipToFrontInterpolate}],
   };
 
   const flipToBackAnimatedStyle = {
-    transform: [{rotateY: flipToCloseInterpolate}],
+    transform: [{rotateY: flipToBackInterpolate}],
   };
 
   const handleDisabledPress = () => {
     console.log('handleDisabledPress');
   };
 
-  useEffect(() => {
-    // console.log(currentNumIndex, 'currentNumIndex');
-    // console.log(dataIndex, 'dataIndex');
-    if (currentNum === data && currentNumIndex === dataIndex) {
-      flipToOpenAnimation();
-    }
-  }, [currentNum, currentNumIndex]);
-
-  useEffect(() => {
-    // console.log(dataIndex, 'dataIndex');
-    // console.log(matchedIndexes, 'matchedIndexes');
-    // console.log(unmatchedIndexes, 'unmatchedIndexes');
-
-    if (matchedIndexes.includes(dataIndex)) {
-      flipToOpenAnimation();
-    } else if (unmatchedIndexes.includes(dataIndex)) {
-      flipToCloseAnimation();
-    }
-  }, [dataIndex, matchedIndexes, unmatchedIndexes]);
-
-  // console.log(isMatch, 'isMatch');
+  // useEffect(() => {
+  //   if (!isMatch) {
+  //     closeCardAnimation();
+  //   }
+  // }, [isMatch]);
 
   const handlePress = () => {
-    console.log(currentNumIndex, 'currentNumIndex');
-    console.log(dataIndex, 'dataIndex');
-    // if (currentNumIndex === dataIndex) {
-    //   return;
-    // }
-    setIsCardOpen(!isCardOpen);
-    console.log('handlePress');
-    if (onToggle) {
-      onToggle(data, dataIndex);
+    setFlipType(flipType === 'CLOSE' ? 'OPEN' : 'CLOSE');
+    if (flipType === 'CLOSE') {
+      flipToBackAnimation();
+    } else {
+      flipToFrontAnimation();
+    }
+    if (onOpen) {
+      onOpen(children);
     }
   };
 
   return (
-    <Button style={[styles.card, style]} onPress={handlePress}>
-      <Animated.View style={{...styles.openStyle, ...flipToBackAnimatedStyle}}>
-        <Content
-          style={[styles.textStyle, styles.closeTextStyle, contentStyle]}>
+    <Button
+      style={[styles.buttonStyle, style]}
+      onPress={disabled ? handleDisabledPress : handlePress}>
+      <Animated.View
+        style={[
+          styles.animatedBox,
+          flipToFrontAnimatedStyle,
+          flipType === 'CLOSE' ? styles.closeStyle : styles.openStyle,
+        ]}>
+        <Card width={width} height={height}>
           {children}
-        </Content>
+        </Card>
       </Animated.View>
       <Animated.View
-        style={{...styles.closeStyle, ...flipToFrontAnimatedStyle}}>
+        style={[
+          styles.animatedBox,
+          flipToBackAnimatedStyle,
+          flipType === 'CLOSE' ? styles.closeStyle : styles.openStyle,
+        ]}>
         <Content
           style={[
             styles.textStyle,
-            isCardOpen ? styles.openTextStyle : styles.closeTextStyle,
+            flipType === 'CLOSE' ? styles.closeTextStyle : styles.openTextStyle,
             contentStyle,
           ]}>
           ?
@@ -152,24 +136,26 @@ const Card: React.FC<ICardProps> = ({
 
 const getStyles = (height: number, width: number) => {
   const styles = {
-    card: {
+    buttonStyle: {
+      height,
+      width,
       borderRadius: 10,
       margin: 5,
     },
-    openStyle: {
+    animatedBox: {
       height,
       width,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    openStyle: {
       position: 'absolute',
+      borderWidth: 3,
       borderColor: CARD_BORDER_COLOR,
       backgroundColor: OPEN_CARD_BG_COLOR,
     },
     closeStyle: {
-      height,
-      width,
-      alignItems: 'center',
-      justifyContent: 'center',
+      borderWidth: 3,
       borderColor: CARD_BORDER_COLOR,
       backgroundColor: CLOSE_CARD_BG_COLOR,
       backfaceVisibility: 'hidden',
