@@ -1,13 +1,13 @@
-import React, {Fragment, useEffect, useRef, useState} from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import createStyles from '../utils/createStyles';
-import Content from './Content';
-import {Animated, StyleProp, View} from 'react-native';
-import Button from './Button';
+import { Animated, StyleProp, View } from 'react-native';
 import {
   CARD_BORDER_COLOR,
   CLOSE_CARD_BG_COLOR,
   OPEN_CARD_BG_COLOR,
 } from '../constants';
+import Content from '../components/Content';
+import Button from '../components/Button';
 
 export type IFlipTypeOptions = 'OPEN' | 'CLOSE';
 
@@ -49,11 +49,10 @@ const Card: React.FC<ICardProps> = ({
 
   let flipRotation = 0;
   flipAnimatedValue.addListener(
-    ({value}: {value: number}) => (flipRotation = value),
+    ({ value }: { value: number }) => (flipRotation = value),
   );
 
   const flipToOpenAnimation = (callback: () => void = () => {}) => {
-    console.log('flipToOpenAnimation');
     Animated.timing(flipAnimatedValue, {
       toValue: 180,
       duration: 400,
@@ -62,7 +61,6 @@ const Card: React.FC<ICardProps> = ({
   };
 
   const flipToCloseAnimation = () => {
-    console.log('flipToCloseAnimation');
     Animated.timing(flipAnimatedValue, {
       toValue: 0,
       duration: 400,
@@ -81,30 +79,20 @@ const Card: React.FC<ICardProps> = ({
   });
 
   const flipToFrontAnimatedStyle = {
-    transform: [{rotateY: flipToOpenInterpolate}],
+    transform: [{ rotateY: flipToOpenInterpolate }],
   };
 
   const flipToBackAnimatedStyle = {
-    transform: [{rotateY: flipToCloseInterpolate}],
-  };
-
-  const handleDisabledPress = () => {
-    console.log('handleDisabledPress');
+    transform: [{ rotateY: flipToCloseInterpolate }],
   };
 
   useEffect(() => {
-    // console.log(currentNumIndex, 'currentNumIndex');
-    // console.log(dataIndex, 'dataIndex');
     if (isCardOpen) {
       flipToOpenAnimation();
     }
   }, [isCardOpen]);
 
   useEffect(() => {
-    // console.log(dataIndex, 'dataIndex');
-    // console.log(matchedIndexes, 'matchedIndexes');
-    // console.log(unmatchedIndexes, 'unmatchedIndexes');
-
     if (matchedIndexes.includes(dataIndex)) {
       flipToOpenAnimation();
     } else if (unmatchedIndexes.includes(dataIndex)) {
@@ -112,11 +100,7 @@ const Card: React.FC<ICardProps> = ({
     }
   }, [dataIndex, matchedIndexes, unmatchedIndexes]);
 
-  // console.log(isMatch, 'isMatch');
-
   const handlePress = () => {
-    // console.log(currentNumIndex, 'currentNumIndex');
-    // console.log(dataIndex, 'dataIndex');
     flipToOpenAnimation(() => {
       if (onToggle) {
         onToggle(data, dataIndex);
@@ -128,14 +112,15 @@ const Card: React.FC<ICardProps> = ({
     <Button
       style={[styles.card, style]}
       onPress={currentNumIndex !== dataIndex ? handlePress : () => {}}>
-      <Animated.View style={{...styles.openStyle, ...flipToBackAnimatedStyle}}>
+      <Animated.View
+        style={{ ...styles.openStyle, ...flipToBackAnimatedStyle }}>
         <Content
           style={[styles.textStyle, styles.closeTextStyle, contentStyle]}>
           {children}
         </Content>
       </Animated.View>
       <Animated.View
-        style={{...styles.closeStyle, ...flipToFrontAnimatedStyle}}>
+        style={{ ...styles.closeStyle, ...flipToFrontAnimatedStyle }}>
         <Content
           style={[
             styles.textStyle,
