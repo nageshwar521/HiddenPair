@@ -11,6 +11,7 @@ interface User {
 interface UsersStorage {
   users: User[];
   addUser: (newUser: User) => void;
+  updateUser: (updatedUser: User) => void;
   deleteUser: (userId: string) => void;
 }
 
@@ -42,6 +43,16 @@ const useUsersStorage = (): UsersStorage => {
     }
   };
 
+  const updateUser = async (updatedUser: User) => {
+    try {
+      const updatedUsers = users.map((user) => (user.id === updatedUser.id ? updatedUser : user));
+      setUsers(updatedUsers);
+      await AsyncStorage.setItem('users', JSON.stringify(updatedUsers));
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
   const deleteUser = async (userId: string) => {
     try {
       const updatedUsers = users.filter((user) => user.id !== userId);
@@ -52,7 +63,7 @@ const useUsersStorage = (): UsersStorage => {
     }
   };
 
-  return { users, addUser, deleteUser };
+  return { users, addUser, updateUser, deleteUser };
 };
 
 export default useUsersStorage;

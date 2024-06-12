@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Input, Button } from 'react-native-elements';
+import { Input } from 'react-native-elements';
 import ProfileImageUpload from './ProfileImageUpload'; // Assuming you have a ProfileImageUpload component
 import useUsersStorage from '../../hooks/useUsersStorage'; // Assuming you have a custom hook for managing users storage
 import CustomButton from '@components/CustomButton';
@@ -14,16 +14,25 @@ interface User {
 
 interface AddUserFormProps {
   onCancel: () => void;
-  onSuccess: (newUser: User) => void;
+  onSuccess: (user: User) => void;
+  userToEdit?: User; // User to edit, if any
 }
 
-const AddUserForm: React.FC<AddUserFormProps> = ({ onCancel, onSuccess }) => {
-  const { addUser } = useUsersStorage(); // Custom hook to manage users storage
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
+const AddUserForm: React.FC<AddUserFormProps> = ({ onCancel, onSuccess, userToEdit }) => {
+  const { addUser, updateUser } = useUsersStorage(); // Custom hook to manage users storage
+  const [name, setName] = useState(userToEdit?.name || '');
+  const [username, setUsername] = useState(userToEdit?.username || '');
+  const [profileImage, setProfileImage] = useState<string | undefined>(userToEdit?.photo);
   const [nameError, setNameError] = useState<string | undefined>('');
   const [usernameError, setUsernameError] = useState<string | undefined>('');
+
+  useEffect(() => {
+    if (userToEdit) {
+      setName(userToEdit.name);
+      setUsername(userToEdit.username);
+      setProfileImage(userToEdit.photo);
+    }
+  }, [userToEdit]);
 
   const generateUsername = (name: string) => {
     const usernamePrefix = name.toLowerCase().replace(/\s+/g, '');
@@ -31,26 +40,31 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onCancel, onSuccess }) => {
     return `${usernamePrefix}${randomNum}`;
   };
 
-  const handleAddUser = () => {
+  const handleSaveUser = () => {
     if (!name || !username) {
       if (!name) setNameError('Name is required');
       if (!username) setUsernameError('Username is required');
       return;
     }
 
-    const newUser = {
-      id: Date.now().toString(),
+    const user: User = {
+      id: userToEdit ? userToEdit.id : Date.now().toString(),
       name,
       username,
       photo: profileImage,
     };
-    addUser(newUser);
-    onSuccess(newUser); // Call onSuccess when a new user is successfully added
+
+    if (userToEdit) {
+      updateUser(user);
+    } else {
+      addUser(user);
+    }
+    onSuccess(user); // Call onSuccess when a user is successfully added or updated
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add New User</Text>
+      <Text style={styles.title}>{userToEdit ? 'Edit User' : 'Add New User'}</Text>
       <View style={styles.imageUploadContainer}>
         <ProfileImageUpload onImageSelect={setProfileImage} imageUrl={profileImage} />
       </View>
@@ -60,7 +74,9 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onCancel, onSuccess }) => {
           value={name}
           onChangeText={text => {
             setName(text);
-            setUsername(generateUsername(text)); // Auto-generate username based on name
+            if (!userToEdit) {
+              setUsername(generateUsername(text)); // Auto-generate username based on name
+            }
             setNameError('');
           }}
           errorMessage={nameError}
@@ -79,7 +95,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onCancel, onSuccess }) => {
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton title="Cancel" onPress={onCancel} buttonStyle={[styles.button, { marginVertical: 10 }]} />
-        <CustomButton title="Add User" onPress={handleAddUser} buttonStyle={[styles.button, { marginVertical: 10 }]} />
+        <CustomButton title={userToEdit ? 'Save User' : 'Add User'} onPress={handleSaveUser} buttonStyle={[styles.button, { marginVertical: 10 }]} />
       </View>
     </View>
   );

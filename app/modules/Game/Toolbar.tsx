@@ -9,18 +9,22 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ stepCount, selectedUserName, onBackPress }) => {
+  // Shorten the user name if it exceeds 10 characters
+  const displayedUserName = selectedUserName.length > 10 
+    ? `${selectedUserName.slice(0, 10)}...` 
+    : selectedUserName;
+
   return (
     <View style={styles.toolbar}>
       <Icon name="arrow-back" onPress={onBackPress} />
       <View style={styles.infoContainer}>
+        <Text style={styles.label}>User:</Text>
+        <Text style={styles.info} numberOfLines={1} ellipsizeMode="tail">{displayedUserName}</Text>
+      </View>
+      <View style={styles.infoContainer}>
         <Text style={styles.label}>Step Count:</Text>
         <Text style={styles.info}>{stepCount}</Text>
       </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>User:</Text>
-        <Text style={styles.info}>{selectedUserName}</Text>
-      </View>
-      <Icon name="info" type="material" />
     </View>
   );
 };

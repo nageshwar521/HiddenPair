@@ -1,15 +1,14 @@
-// src/screens/UserSelectionScreen.tsx
+import React, { useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
+import { Icon, colors } from 'react-native-elements';
+import { useDispatch, useSelector } from 'react-redux';
 import useUsersStorage from '@hooks/useUsersStorage';
 import AddUserForm from '@modules/Users/AddUserForm';
+import CustomButton from '@components/CustomButton';
 import { RootStackParamList } from '@navigation/MainStackNavigator';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { setSelectedUser as setSelectedUserInGame } from '@store/slices/gameSlice';
 import { selectAppData, setSelectedUser as setSelectedUserInApp } from '@store/slices/appSlice';
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Modal, TouchableOpacity, Button, Alert } from 'react-native';
-import { Icon, colors } from 'react-native-elements';
-import { useDispatch, useSelector } from 'react-redux';
-import CustomButton from '@components/CustomButton';
 
 interface User {
   id: string;
@@ -25,8 +24,9 @@ type Props = {
 };
 
 const UserSelectionScreen: React.FC<Props> = ({ navigation }) => {
-  const { users, deleteUser, addUser } = useUsersStorage(); // Custom hook to manage users storage
+  const { users, deleteUser, addUser, updateUser } = useUsersStorage(); // Custom hook to manage users storage
   const [modalVisible, setModalVisible] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | undefined>(undefined);
   const { selectedUser } = useSelector(selectAppData);
 
   const dispatch = useDispatch();
@@ -67,12 +67,23 @@ const UserSelectionScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleAddUser = (newUser: User) => {
-    addUser(newUser);
+    if (userToEdit) {
+      updateUser(newUser);
+    } else {
+      addUser(newUser);
+    }
     setModalVisible(false);
+    setUserToEdit(undefined);
   };
 
   const handleCancelAddUser = () => {
     setModalVisible(false);
+    setUserToEdit(undefined);
+  };
+
+  const handleEditUser = (user: User) => {
+    setUserToEdit(user);
+    setModalVisible(true);
   };
 
   const renderUserItem = ({ item }: { item: User }) => (
@@ -81,9 +92,14 @@ const UserSelectionScreen: React.FC<Props> = ({ navigation }) => {
         <Icon name="check" type="material" color="#00FF00" />
       )}
       <Text style={styles.userName}>{item.name}</Text>
-      <TouchableOpacity onPress={() => handleDeleteUser(item.id)} style={[styles.deleteButton, { backgroundColor: colors.secondary }]}>
-        <Icon name="delete" type="material" color="#fff" />
-      </TouchableOpacity>
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity onPress={() => handleEditUser(item)} style={styles.editButton}>
+          <Icon name="edit" type="material" color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDeleteUser(item.id)} style={styles.deleteButton}>
+          <Icon name="delete" type="material" color="#fff" />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -102,7 +118,11 @@ const UserSelectionScreen: React.FC<Props> = ({ navigation }) => {
       <CustomButton title="Submit" onPress={handleSubmitUser} />
       <Modal visible={modalVisible} animationType="slide">
         <View style={styles.modalContainer}>
-          <AddUserForm onCancel={handleCancelAddUser} onSuccess={handleAddUser} />
+          <AddUserForm
+            onCancel={handleCancelAddUser}
+            onSuccess={handleAddUser}
+            userToEdit={userToEdit} // Pass user to edit to the form
+          />
         </View>
       </Modal>
     </View>
@@ -127,9 +147,19 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginLeft: 10
   },
+  actionsContainer: {
+    flexDirection: 'row',
+  },
+  editButton: {
+    padding: 5,
+    borderRadius: 5,
+    backgroundColor: colors.primary,
+    marginRight: 10,
+  },
   deleteButton: {
     padding: 5,
     borderRadius: 5,
+    backgroundColor: colors.secondary,
   },
   addButton: {
     backgroundColor: '#DDDDDD',

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Dimensions, Button, BackHandler, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Dimensions, BackHandler, Alert } from 'react-native';
 import GamePlay from '../modules/Game/GamePlay';
 import Toolbar from '@modules/Game/Toolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,7 +7,7 @@ import { incrementStepCount, resetStepCount, selectGame } from '@store/slices/ga
 import { selectAppData } from '@store/slices/appSlice';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@navigation/MainStackNavigator';
-import CustomButton from '@components/CustomButton';
+import { selectSettings } from '@store/slices/settingsSlice';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +20,7 @@ type Props = {
 const GameScreen: React.FC<Props> = ({ navigation }) => {
   const { stepCount } = useSelector(selectGame);
   const { selectedUser } = useSelector(selectAppData);
+  const { gameMode } = useSelector(selectSettings);
   const dispatch = useDispatch();
 
   const handleCardFlip = useCallback(() => {
@@ -34,7 +35,7 @@ const GameScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('Home');
   }, [navigation]);
 
-  const handleBackPress = () => {
+  const handleBackPress = useCallback(() => {
     Alert.alert('Hold on!', 'Do you want to save the game before exiting?', [
       {
         text: 'Cancel',
@@ -43,11 +44,17 @@ const GameScreen: React.FC<Props> = ({ navigation }) => {
       },
       {
         text: 'Exit without Saving',
-        onPress: () => handleGoHome(),
+        onPress: handleGoHome,
         style: 'destructive',
       },
     ]);
-  }
+    return true;
+  }, [handleGoHome]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => backHandler.remove();
+  }, [handleBackPress]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,6 +65,7 @@ const GameScreen: React.FC<Props> = ({ navigation }) => {
         onCardFlip={handleCardFlip}
         onRestart={handleRestart}
         onGoHome={handleGoHome}
+        mode={gameMode} // Pass the game mode to GamePlay
       />
     </SafeAreaView>
   );

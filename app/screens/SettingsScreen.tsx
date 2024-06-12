@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Alert } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
 import SoundSettings from '@modules/Settings/SoundSettings';
+import GameModeSettings from '@modules/Settings/GameModeSettings';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@navigation/MainStackNavigator';
 import { clearSelectedUser, selectAppData } from '@store/slices/appSlice';
 import CustomButton from '@components/CustomButton';
+import { AppDispatch } from '@store/index';
 
 type SettingsScreenProp = StackNavigationProp<RootStackParamList, 'Settings'>;
 
-type Props = {
+interface Props {
   navigation: SettingsScreenProp;
-};
+}
 
 const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { selectedUser } = useSelector(selectAppData);
-  const dispatch = useDispatch();
-  const [currentView, setCurrentView] = useState<'menu' | 'sound' | 'profile'>('menu');
+  const dispatch = useDispatch<AppDispatch>();
+  const [currentView, setCurrentView] = useState<'menu' | 'sound' | 'profile' | 'gameMode'>('menu');
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -31,7 +33,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       {selectedUser ? (
         <>
           <CustomButton title="Edit Sound" onPress={() => setCurrentView('sound')} buttonStyle={styles.button} />
-          <CustomButton title="Edit Profile" onPress={() => navigation.navigate('UserSelection')} buttonStyle={styles.button} />
+          <CustomButton title="Change User" onPress={() => navigation.navigate('UserSelection')} buttonStyle={styles.button} />
+          <CustomButton title="Game Mode" onPress={() => setCurrentView('gameMode')} buttonStyle={styles.button} />
           <CustomButton title="Logout" onPress={handleLogout} buttonStyle={styles.button} />
         </>
       ) : (
@@ -52,6 +55,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       </View>
       {currentView === 'menu' && renderMenu()}
       {currentView === 'sound' && <SoundSettings />}
+      {currentView === 'gameMode' && <GameModeSettings />}
       {currentView !== 'menu' && <CustomButton title="Back to Menu" onPress={() => setCurrentView('menu')} buttonStyle={styles.button} />}
     </View>
   );
