@@ -1,36 +1,16 @@
-import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
+import Sound from 'react-native-sound';
+Sound.setCategory('Playback');
 import React from 'react';
-import createStyles from './utils/createStyles';
-import { BG_PRIMARY_COLOR } from './constants';
-import Game from './containers/Game';
+import { Provider } from 'react-redux';
+import store from './store';
+import MainStackNavigator from './navigation/MainStackNavigator';
 
 const App = () => {
-  const styles = getStyles();
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Game />
-    </SafeAreaView>
+    <Provider store={store}>
+      <MainStackNavigator />
+    </Provider>
   );
-};
-
-const getStyles = () => {
-  const styles = {
-    safeArea: {
-      flex: 1,
-    },
-    container: {
-      flex: 1,
-      padding: 10,
-      backgroundColor: BG_PRIMARY_COLOR,
-    },
-    cardsWrapper: {
-      flex: 1,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-  };
-  return createStyles(styles);
 };
 
 export default App;

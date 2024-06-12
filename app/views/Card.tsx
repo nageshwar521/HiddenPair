@@ -7,7 +7,8 @@ import {
   OPEN_CARD_BG_COLOR,
 } from '../constants';
 import Content from '../components/Content';
-import Button from '../components/Button';
+import Button from '../components/CustomButton';
+import CustomButton from '../components/CustomButton';
 
 export type IFlipTypeOptions = 'OPEN' | 'CLOSE';
 
@@ -109,7 +110,7 @@ const Card: React.FC<ICardProps> = ({
   };
 
   return (
-    <Button
+    <CustomButton
       style={[styles.card, style]}
       onPress={currentNumIndex !== dataIndex ? handlePress : () => {}}>
       <Animated.View
@@ -130,7 +131,7 @@ const Card: React.FC<ICardProps> = ({
           ?
         </Content>
       </Animated.View>
-    </Button>
+    </CustomButton>
   );
 };
 

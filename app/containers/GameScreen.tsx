@@ -9,7 +9,7 @@ import Board from '../views/Board';
 
 const defaultRandomNums = generateRandomNums();
 
-const Game = () => {
+const GameScreen = () => {
   const [steps, setSteps] = useState<number>(0);
   const [unmatchedNumIndexes, setUnmatchedNumIndexes] = useState<number[]>([]);
   const [matchedNumIndexes, setMatchedNumIndexes] = useState<number[]>([]);
@@ -100,7 +100,7 @@ const Game = () => {
       {isDone ? (
         <Alert
           buttonText="Try another round"
-          content={`You win this game by ${steps} steps!`}
+          content={`You win this GameScreen by ${steps} steps!`}
           isOpen
           onClose={handleCloseAlert}
         />
@@ -128,4 +128,4 @@ const getStyles = () => {
   return createStyles(styles);
 };
 
-export default Game;
+export default GameScreen;

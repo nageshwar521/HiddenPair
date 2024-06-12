@@ -1,10 +1,28 @@
-// prettier-ignore
 {
-  "extends": "@tsconfig/react-native/tsconfig.json",     /* Recommended React Native TSConfig base */
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig.json to read more about this file */
-
-    /* Completeness */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+    "target": "es5",
+    "module": "commonjs",
+    "lib": ["es6", "dom"],
+    "jsx": "react",
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": "./app",
+    "paths": {
+      "@assets/*": ["assets/*"],
+      "@components/*": ["components/*"],
+      "@containers/*": ["containers/*"],
+      "@hooks/*": ["hooks/*"],
+      "@modules/*": ["modules/*"],
+      "@navigation/*": ["navigation/*"],
+      "@screens/*": ["screens/*"],
+      "@store/*": ["store/*"],
+      "@types/*": ["types/*"],
+      "@utils/*": ["utils/*"],
+      "@views/*": ["views/*"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["app"]
 }
