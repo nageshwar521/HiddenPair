@@ -7,11 +7,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface ReactNativeCardGameTests : XCTestCase
+@interface HiddenPairTests : XCTestCase
 
 @end
 
-@implementation ReactNativeCardGameTests
+@implementation HiddenPairTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL (^)(UIView *view))test
 {
