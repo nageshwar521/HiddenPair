@@ -1,4 +1,4 @@
-<svg baseProfile="full" height="180" version="1.1" width="120" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg baseProfile="full" height="180" version="1.1" width="140" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs />
   <g transform="rotate(-10, 120, 220)">
     <rect fill="white" height="150" rx="10" ry="10" stroke="black" stroke-width="2" width="100" x="20.0" y="45.0" />
